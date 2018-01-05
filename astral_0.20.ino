@@ -62,14 +62,14 @@ RTC_DS3234 RTC(53);
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit));
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit));
 #define tbi(sfr, bit) (_SFR_BYTE(sfr) ^= _BV(bit));
-#define MOTOR_ENGAGE        sbi(DDRL, PINL0); //   digital
-#define MOTOR_DISENGAGE     cbi(DDRL, PINL0);  //    PIN 2
-#define SPIN_CLOCK          sbi(DDRL, PINA0); //   digital
-#define SPIN_ANTICLOCK      cbi(DDRL, PINA0);  //    PIN 4
+#define MOTOR_ENGAGE        sbi(DDRL, PING0); //   digital
+#define MOTOR_DISENGAGE     cbi(DDRL, PING0);  //    PIN 40
+#define SPIN_CLOCK          sbi(DDRL, PINA3); //   digital
+#define SPIN_ANTICLOCK      cbi(DDRL, PINA3);  //    PIN 25
 #define MOTOR_OFF           PORTL &= ~(1<<4); //   digital
 #define MOTOR_ON            PORTL  |= (1<<4);  //    PIN 45
-#define MOTOR_TOGGLE  PINL |= 1<<5;//  tbi(DDRL, PINL5); //switch MOTORPIN state (digital PIN  45)
-#define LEDPIN_TOGGLE   PINA |= 1<<1;     //switch  LEDPIN  state (digital PIN 13)
+#define MOTOR_TOGGLE  PINL |= 1<<5;//  tbi(DDRL, PINL5); //switch MOTORPIN state (digital PIN  44)
+#define LEDPIN_TOGGLE   PINA |= 1<<3;     //switch  LEDPIN  state (digital PIN 25)
 
 #define YP A2  // must be an analog pin, use "An" notation!
 #define XM A3  // must be an analog pin, use "An" notation!
