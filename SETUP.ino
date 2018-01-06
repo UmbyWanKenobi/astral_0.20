@@ -123,6 +123,6 @@ void MOTORE () {
   
   
   MOTOR_ENGAGE;
-  SPIN_ANTICLOCK;
+  SPIN_CLOCK;
   
 }
