@@ -106,13 +106,14 @@ void Musichina () {
 }
 
 void MOTORE () {
-   //             76543210
- pinMode(31, OUTPUT);  
-  sbi(DDRL, PINL5); 
-   sbi(DDRA, PINA1); 
-  sbi (DDRB, PINB7); 
-  digitalWrite(31, HIGH); 
- Timer3.initialize(DELAY * 1000000 );   
+  
+  // set port pin to output PL0 PL1 PL2 PL3 PL4 PL5
+  //             76543210
+  DDRL = DDRL | B00111111;
+  // set port pin to output PA3
+ 
+  DDRA = DDRA | B00001000;
+  Timer3.initialize(DELAY * 1000000 );   
   Timer3.attachInterrupt(m1);  Timer3.stop();
   Serial.begin(115200);
   Serial.print("Tempo "); Serial.print ( TEMPO ); Serial.println (" secondi");
@@ -121,7 +122,7 @@ void MOTORE () {
   Serial.print("Tempo stimato "); Serial.print ( float(( COUNT ) * ( DELAY  )) / 60  ); Serial.println (" minuti");
   
   
- // MOTOR_ENGAGE;
-  SPIN_CLOCK;
- 
+  MOTOR_ENGAGE;
+  SPIN_ANTICLOCK;
+  
 }

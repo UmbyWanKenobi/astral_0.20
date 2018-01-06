@@ -5,19 +5,19 @@ void m1 () {
   pulse ++;
 }
 void STEPPER() {
-  pulse = 0;
-  timer = millis();
-  Serial.println (timer);
+  
+  pulse=0;
+  t=millis();
+ Serial.println (t);
   Timer3.start();
-  while ((millis() - timer) < (TEMPO * 1000)) {
-    //
-  }
+  while((millis() -t) < (TEMPO * 1000)) {
+//    
+      }
 
   Timer3.stop();
-  cbi(DDRA, PINA1);
   Serial.println (pulse);
-  Serial.print("Fine in "); Serial.println (millis() - timer);
-  Serial.print("scarto "); Serial.println( pulse - COUNT );
-  Serial.println((360 / COUNT) * (pulse - COUNT), 4);
+  Serial.print("Fine in ");Serial.println (millis() -t);
+Serial.print("scarto "); Serial.println( pulse - COUNT );
+Serial.println((360 / COUNT)*(pulse - COUNT),4);
  
 }
