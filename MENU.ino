@@ -1,7 +1,5 @@
 
-void MENU_BUTTON() {
-
-
+void MENU_BUTTON() {                      // I pulsanti del menù principale
   for (uint8_t row = 0; row < 2; row++) {
     for (uint8_t col = 0; col < 2; col++) {
       MENU[col + row * 2].initButton(&tft, MENU_X + col * (MENU_W + MENU_SPACING_X),
@@ -11,38 +9,40 @@ void MENU_BUTTON() {
 
     }
   }
+  // Il pulsante di uscita
   MENU[5].initButton(&tft, 50,
                      290, // x, y, w, h, outline, fill, text, corner radius, char dim.
                      90, 50, GREEN, BLUE, WHITE,
                      menu_strings[4], MENU_TEXTSIZE, RADIUS, 7, 12);
 }
 
-void touch  (int i)
-{
-
-  digitalWrite(13, HIGH);
+void touch  (int i) {                           // Routine touchscreen
+#ifdef DEBUG                      // Per Uso  
+  digitalWrite(13, HIGH);         //   di
+#endif                            //  debug
   TSPoint p = ts.getPoint();
-  digitalWrite(13, LOW);
+ #ifdef DEBUG                      // Per Uso  
+  digitalWrite(13, HIGH);         //   di
+#endif                            //  debug
+
   pinMode(XM, OUTPUT);
   pinMode(YP, OUTPUT);
-  if (p.z > MINPRESSURE && p.z < MAXPRESSURE)
-  {
+  if (p.z > MINPRESSURE && p.z < MAXPRESSURE)  {
     p.x = (map(p.x, TS_MINX, TS_MAXX, tft.width(), 0) - 480) * -1;
     p.y = tft.height() - (map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
   }
-  // go thru all the buttons, checking if they were pressed
-  if ((MENU[i].contains(p.x, p.y)) && p.x > 10)
-  {
-    MENU[i].press(true);  // tell the button it is pressed
-    tone(BUZZER_PIN, NOTE_E4, 50);
-    MENU[i].drawButton(true);  // draw invert!
+  // Controlla che qualche pulsante sia stato premuto
+  if ((MENU[i].contains(p.x, p.y)) && p.x > 10) {
+    MENU[i].press(true);                        // Se un pulsante viene premuto
+    tone(BUZZER_PIN, NOTE_E4, 50);              // Suona una nota
+    MENU[i].drawButton(true);                   // Inverte il suo colore
   } else {
-    MENU[i].press(false);  // tell the button it is NOT pressed
+    MENU[i].press(false);                       // Altrimenti non fa niente
   }
 
 }
 
-void ESC () {
+void ESC () {                                   // Routine pulsante di uscita2
   touch (5);
   if (MENU[5].isPressed() == true) {
     ASTRO_MENU();
@@ -50,21 +50,19 @@ void ESC () {
 
 }
 
-void ASTRO_MENU() {
-  Init_Splash_Draw ();
+void ASTRO_MENU() {         // Routine menù principale
+  Init_Splash_Draw ();      // la banda in cima
   tft.setFont(&FreeSansBold12pt7b);
   for (uint8_t row = 0; row < 2; row++) {
     for (uint8_t col = 0; col < 2; col++) {
       MENU[col + row * 2].drawButton();
     }
   }
-  while (true) {
-
+  while (true) { 
     for (uint8_t b = 0; b < 4; b++) {
       touch (b);
-
       if (MENU[b].justReleased()) {
-        MENU[b].drawButton();  // draw normal
+        MENU[b].drawButton();  
       }
 
 
@@ -94,7 +92,7 @@ void ASTRO_MENU() {
             // reset();
             break;
           default:
-           ;
+            ;
         }
       }
     }

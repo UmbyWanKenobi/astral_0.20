@@ -19,11 +19,9 @@
   Hardware richiesto:
   1 Motherboard Arduino Mega 2560 R3 ATmega2560-16AU
   1 GY-GPS6MV1 ricevitore GPS per l'altezza del Polo Celeste (asse polare)
-  1 MPU6050 accellerometro-giroscopio 6 gradi di libertà
-  1 MPL3115A2 barometro - altimetro - termometro
-  1 HMC5983 bussola eletttronica
   1 DS3234 orologio elettronico con quarzo stabilizzato in termperatura
-  1 Controller RepRap con monitor 12864 (seriale), buzzer, encoder, letttore SD e pulsante integrati
+  1 display TFT a colori da 3,5" Kuman UNO R3 3.5
+  1  17HS19-1684S-PG100 https://goo.gl/YhCh6W
 */
 #define DEBUG   // Non commentare per test
 #ifdef DEBUG                    // Per Uso  
@@ -31,18 +29,18 @@
 #define spln Serial.println     //   di
 #endif                          //  debug
 
-#define build 0
-#define revision 21
-#include "note.h"
-#include <Adafruit_GFX.h>// Hardware-specific library
-#include <TouchScreen.h>
-#include <MCUFRIEND_kbv.h>
-#include <SPI.h>          // for RTC
+#define build 0                 // Numero versione
+#define revision 22             // Numero di revisione
+#include "note.h"               // Per il beep
+#include <Adafruit_GFX.h>       // Libreria hardware del display
+#include <TouchScreen.h>        //                per il touchscreen 
+#include <MCUFRIEND_kbv.h>      // Primitive di testo
+#include <SPI.h>                // necessaria per l'RTC
 #include <RTClib.h>
-#include <Fonts/FreeSansBold12pt7b.h>
-#include <Fonts/FreeSans12pt7b.h>
-#include <NMEAGPS.h>
-#include <TimerThree.h>
+#include <Fonts/FreeSansBold12pt7b.h> // Font 
+#include <Fonts/FreeSans12pt7b.h>     // Font
+#include <NMEAGPS.h>            // Parser GPS
+#include <TimerThree.h>         // Controllo PWM motore
 NMEAGPS gps;
 gps_fix fix;
 
@@ -50,35 +48,35 @@ MCUFRIEND_kbv tft;
 RTC_DS3234 RTC(53);
 
 
-#define gps_port Serial1
-#define SCATTO   27      // CNY 75B
+#define gps_port Serial1       // Porta Serial del GPS
+#define SCATTO   27            // fotoaccoppiatore per lo scatto remoto CNY 75B
 //#define SINISTRA 10
 //#define BOLLA     9
 //#define DESTRA    8
-#define LED_GPS0   23
-#define LED_GPS1   31
-#define BUZZER_PIN 17
+#define LED_GPS0   23         // LED di stato GPS inattivo
+#define LED_GPS1   31         // LED di stato GPS attivo
+#define BUZZER_PIN 17         // PIN del buzzer
 #ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))     // Imposta il bit allo stato basso
 #endif
 #ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))     // Imposta il bit allo stato alto
 #endif
 #ifndef tbi
-#define tbi(sfr, bit) (_SFR_BYTE(sfr) ^= _BV(bit))
+#define tbi(sfr, bit) (_SFR_BYTE(sfr) ^= _BV(bit))     // inverte lo stato del bit
 #endif
-#define MOTOR_ENGAGE       cbi (PORTL, PINL1);   // PORTL &= ~(1<<1); //   digital
-#define MOTOR_DISENGAGE    sbi (PORTL, PINL1);   // PORTL |=  (1<<1); //    PIN 48
-#define SPIN_CLOCK         cbi (PORTL, PINL3);   // PORTL &= ~(1<<3); //   digital
-#define SPIN_ANTICLOCK     sbi (PORTL, PINL3);   // PORTL |=  (1<<3); //    PIN 46
-#define MOTOR_TOGGLE       tbi (PORTL, PINL5);   // PINL  |= 1<<5;    //switch MOTORPIN state (digital PIN 44)
-#define LEDPIN_TOGGLE      tbi (PORTA, PINA3);   // PINA  |= 1<<3;    //switch  LEDPIN  state (digital PIN 25)
+#define MOTOR_ENGAGE       cbi (PORTL, PINL1);   // PORTL &= ~(1<<1); //   PIN digitale 48
+#define MOTOR_DISENGAGE    sbi (PORTL, PINL1);   // PORTL |=  (1<<1); //   Se alto spegne il motore
+#define SPIN_CLOCK         cbi (PORTL, PINL3);   // PORTL &= ~(1<<3); //   PIN digitale 46
+#define SPIN_ANTICLOCK     sbi (PORTL, PINL3);   // PORTL |=  (1<<3); //   Se alto gira in senso antiorario
+#define MOTOR_TOGGLE       tbi (PORTL, PINL5);   // PINL  |= 1<<5;    //   scambia lo stato del motore (PIN digitale 44)
+#define LEDPIN_TOGGLE      tbi (PORTA, PINA3);   // PINA  |= 1<<3;    //   scambia lo stato del LED    (PIN digitale 25)
 
 
-#define YP A2  // must be an analog pin, use "An" notation!
-#define XM A3  // must be an analog pin, use "An" notation!
-#define YM 8   // can be a digital pin
-#define XP 9   // can be a digital pin
+#define YP A2  // PIN analogico del touch
+#define XM A3  // PIN analogico del touch
+#define YM 8   // PIN digitale  del touch
+#define XP 9   // PIN digitale  del touch
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 #define TS_MINX 130
 #define TS_MAXX 905
@@ -87,27 +85,6 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 #define TS_MAXY 930
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
-// Assign human-readable names to some common 16-bit color values:
-#define BLACK       0x0000      /*   0,   0,   0 */
-#define NAVY        0x000F      /*   0,   0, 128 */
-#define DARKGREEN   0x03E0      /*   0, 128,   0 */
-#define DARKCYAN    0x03EF      /*   0, 128, 128 */
-#define MAROON      0x7800      /* 128,   0,   0 */
-#define PURPLE      0x780F      /* 128,   0, 128 */
-#define OLIVE       0x7BE0      /* 128, 128,   0 */
-#define LIGHTGREY   0xC618      /* 192, 192, 192 */
-#define DARKGREY    0x7BEF      /* 128, 128, 128 */
-#define BLUE        0x001F      /*   0,   0, 255 */
-#define GREEN       0x07E0      /*   0, 255,   0 */
-#define CYAN        0x07FF      /*   0, 255, 255 */
-#define RED         0xF800      /* 255,   0,   0 */
-#define MAGENTA     0xF81F      /* 255,   0, 255 */
-#define YELLOW      0xFFE0      /* 255, 255,   0 */
-#define WHITE       0xFFFF      /* 255, 255, 255 */
-#define ORANGE      0xFD20      /* 255, 165,   0 */
-#define GREENYELLOW 0xAFE5      /* 173, 255,  47 */
-#define PINK        0xF81F
-
 
 Adafruit_GFX_Button MENU[7];
 char *menu_strings[5] =
@@ -122,25 +99,21 @@ char *menu_strings[5] =
 #define MENU_TEXTSIZE 1
 #define RADIUS 4
 
-#define pi 3.1415926535898   // PI GRECO
-#define JDunix 2440587.5              // Data giuliana a mezzanotte del 1/1/1970
-int TZ = 1;
-int DST = 0;
+#define pi 3.1415926535898      // PI GRECO
+#define JDunix 2440587.5        // Data giuliana a mezzanotte del 1/1/1970
+int TZ = 1;                     // Fuso orario locale (Europa centrale, Berlino, Roma)
+int DST = 0;                    // Daylight Saving Time -- Ora Legale
 
 
 char ccc [26];
 int yr, mo, dy, hr, mn, se, dw, uxt, osec = -1;
 bool ESCAPE = false;
 
-const int melody[] = {
-  NOTE_D7, NOTE_E7, NOTE_C7, NOTE_C6, NOTE_G6 //Musichina
-};
-const int noteDurations[] = {  // note durations: 4 = quarter note, 8 = eighth note, etc.:
-  9, 7, 5, 3, 1
-};
+const int Melodia[] = { NOTE_D7, NOTE_E7, NOTE_C7, NOTE_C6, NOTE_G6 };  // Musichina
+const int TempoMusicale[] = {  9, 7, 5, 3, 1 };                         // Tempo musicale: 4 = un quarto, 8 = un ottavo0, etc.:
 
 uint32_t timer;
-float pulse;
+float IMPULSO;
 float TEMPO = 60;
 float DEMOLTIPLICA = 1;
 float STEP = 400  ;
@@ -187,21 +160,21 @@ void setup() {
 #ifdef DEBUG                    // Per Uso  
   Serial.begin(115200);         //   di
 #endif                          //  debug
-   
 
-  init_TFT();
-  init_RTC();
-  init_GPS();
-  MENU_BUTTON();
- Musichina ();
-   
+
+  init_TFT();                   // Abilita lo schermo
+  init_RTC();                   // Abilita l'orologio in tempo reale
+  init_GPS();                   // Abilita il GPS
+  MENU_BUTTON();                // Crea i bottoni
+  Musichina ();                 // Suono iniziale
+
 }
 
 void loop() {
   ASTRO_MENU();
-    
+
   //Data_Ora();
-  }
+}
 
 
 

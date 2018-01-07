@@ -2,22 +2,22 @@
 void m1 () {
   MOTOR_TOGGLE;
   LEDPIN_TOGGLE;
-  pulse ++;
+  IMPULSO ++;
 }
 void STEPPER() {
   
-  pulse=0;
-  t=millis();
- Serial.println (t);
+  IMPULSO=0;
+  timer=millis();
+ spln (timer);
   Timer3.start();
-  while((millis() -t) < (TEMPO * 1000)) {
+  while((millis() -timer) < (TEMPO * 1000)) {
 //    
       }
 
   Timer3.stop();
-  Serial.println (pulse);
-  Serial.print("Fine in ");Serial.println (millis() -t);
-Serial.print("scarto "); Serial.println( pulse - COUNT );
-Serial.println((360 / COUNT)*(pulse - COUNT),4);
+  spln (IMPULSO);
+  sp("Fine in ");spln (millis() -timer);
+sp("scarto "); spln( IMPULSO - COUNT );
+spln((360 / COUNT)*(IMPULSO - COUNT),4);
  
 }

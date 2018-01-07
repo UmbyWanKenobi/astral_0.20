@@ -4,7 +4,7 @@ void Data_Ora () {
   tft.setCursor(5, 80);
   tft.setTextColor(WHITE, BLACK);
   while (gps.available( gps_port )) {
-    fix = gps.read();  // a new fix structure has been parsed
+    fix = gps.read();  // Nuova lettura del GPS
     plot();
     ESC();
   }
@@ -13,8 +13,9 @@ void PRINT_INFO() {
   tft.setFont();
   tft.setTextSize(2);
   tft.setTextColor(WHITE, BLACK);
-  byte flag; // Flag del dato richiesto: 0 per la data, 1 per UTC, 2 per l'ora locale, 3 per JDN, 4 per l'ora siderale locale
-  // Seleziona il dato richiesto 0 per la latitudine, 1 per la longitudine
+  byte flag;      // Flag del dato richiesto: 0 per la data, 1 per UTC, 2 per l'ora locale, 
+                  // 3 per JDN, 4 per l'ora siderale locale
+                  // Seleziona il dato richiesto 5 per la latitudine, 6 per la longitudine
 
   flag = 0; // DATA
   tft.setCursor(5, 100);
@@ -79,8 +80,8 @@ String ReadLatLong(byte flag) {
 void plot() {
 
   if (fix.valid.location) {
-    digitalWrite(LED_GPS0 , LOW);
-    digitalWrite(LED_GPS1 , HIGH); // Then there are satellites, the LED switch ON
+    digitalWrite(LED_GPS0 , LOW);       // Spengi il LED di attesa
+    digitalWrite(LED_GPS1 , HIGH);      // Accendi il LED se ci sono satelliti aggangiati
     if (fix.valid.time ) {
     
       TIME.hour = fix.dateTime.hours;
@@ -109,19 +110,18 @@ void plot() {
     LONGITUDE.dir = "E";
     
     PRINT_INFO();
-  } else {
-    // If no satellite connection
-    digitalWrite(LED_GPS1 , LOW); // Turn off the LED
- digitalWrite(LED_GPS0 , HIGH);
-    Serial.println();
-    Serial.println( F("-----------------------------") );
-    Serial.print  ( F("|--- Status -->") );
+  } else {                        // Se non ci sono satelliti aggangiati
+    digitalWrite(LED_GPS1 , LOW); // Spegni il LED
+ digitalWrite(LED_GPS0 , HIGH);   // Accendi il LED del disasccoppiamento
+    spln();
+    spln( F("-----------------------------------") );
+    sp  ( F("|-------------- Stato ------------>") );
     if (fix.valid.status)
-      Serial.print  ( fix.status );
-    Serial.println();
-    Serial.println( F(" |") );
-    Serial.println( F("|----Waiting location----|") );
-    Serial.println( F("-----------------------------") );
-    Serial.println();
+      sp  ( fix.status );
+    spln();
+    spln( F(" |") );
+    spln( F("|---- In attesa dell'aggangio ----|") );
+    spln( F("-----------------------------------") );
+    spln();
   }
 }
