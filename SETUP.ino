@@ -13,9 +13,9 @@ void init_RTC() {
   RTC.begin();
   RTC.enableOscillator(true, true, 3);
   if ( ! RTC.isrunning()) {
-    spln( F("RTC non funziona!"));     
+    spln( F("RTC non funziona!"));
   } else {
-    spln( F("RTC in funzione"));     
+    spln( F("RTC in funzione"));
   }
 }
 void init_GPS() {
@@ -29,9 +29,9 @@ void init_GPS() {
   digitalWrite( LED_GPS0, LOW );
   digitalWrite( LED_GPS1, LOW );
 #ifdef DEBUG                                      // Per Uso  
-    spln( F("In attesa del GPS ...") ); //   di DEBUG
+  spln( F("In attesa del GPS ...") ); //   di DEBUG
 #endif
-  
+
   while (gps.available( gps_port )) {
     fix = gps.read();  // a new fix structure has been parsed
     if ((uint16_t) millis() - lastToggle > 500) {
@@ -108,11 +108,10 @@ void Musichina () {
 
 void MOTORE () {
 
-  // set port pin to output PL0 PL1 PL2 PL3 PL4 PL5
+  // abilita i pin PL0 PL1 PL2 PL3 PL4 PL5 della porta L in uscita
   //             76543210
   DDRL = DDRL | B00111111;
-  // set port pin to output PA3
-
+  //  abilita i pin PA3 della porta A in uscita
   DDRA = DDRA | B00001000;
   Timer3.initialize(DELAY * 1000000 );
   Timer3.attachInterrupt(m1);  Timer3.stop();
