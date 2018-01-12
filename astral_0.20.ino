@@ -1,4 +1,6 @@
 
+
+
 /*
    ASTROINSEGUITORE versione 02
    (c) 2016 Lafayette Software Development for Il Poliedrico
@@ -30,7 +32,7 @@
 #endif                          //  debug
 
 #define build 0                 // Numero versione
-#define revision 22             // Numero di revisione
+#define revision 23             // Numero di revisione
 #include "note.h"               // Per il beep
 #include <Adafruit_GFX.h>       // Libreria hardware del display
 #include <TouchScreen.h>        //                per il touchscreen 
@@ -41,11 +43,18 @@
 #include <Fonts/FreeSans12pt7b.h>     // Font
 #include <NMEAGPS.h>            // Parser GPS
 #include <TimerThree.h>         // Controllo PWM motore
+#include "SparkFunMPL3115A2.h"
+#include <Adafruit_Sensor.h>
+#include <Adafruit_TSL2561_U.h>
+
 NMEAGPS gps;
 gps_fix fix;
 
 MCUFRIEND_kbv tft;
 RTC_DS3234 RTC(53);
+MPL3115A2 MPL;
+
+Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
 
 
 #define gps_port Serial1       // Porta Serial del GPS
@@ -70,7 +79,7 @@ RTC_DS3234 RTC(53);
 #define SPIN_CLOCK         cbi (PORTL, PINL3);   // PORTL &= ~(1<<3); //   PIN digitale 46
 #define SPIN_ANTICLOCK     sbi (PORTL, PINL3);   // PORTL |=  (1<<3); //   Se alto gira in senso antiorario
 #define MOTOR_TOGGLE       tbi (PORTL, PINL5);   // PINL  |= 1<<5;    //   scambia lo stato del motore (PIN digitale 44)
-#define LEDPIN_TOGGLE      tbi (PORTA, PINA3);   // PINA  |= 1<<3;    //   scambia lo stato del LED    (PIN digitale 25)
+#define  LEDMOTOR_TOGGLE   tbi (PORTA, PINA3);   // PINA  |= 1<<3;    //   scambia lo stato del LED    (PIN digitale 25)
 
 
 #define YP A2  // PIN analogico del touch
@@ -104,6 +113,7 @@ char *menu_strings[5] =
 int TZ = 1;                     // Fuso orario locale (Europa centrale, Berlino, Roma)
 int DST = 0;                    // Daylight Saving Time -- Ora Legale
 
+String value;
 
 char ccc [26];
 int yr, mo, dy, hr, mn, se, dw, uxt, osec = -1;
@@ -120,6 +130,20 @@ float STEP = 400  ;
 float DIVISORE = 128 ;
 float COUNT = STEP * DIVISORE * DEMOLTIPLICA;
 float DELAY = (TEMPO / COUNT);
+
+  // sidereal calculation constants
+const float dc = 0.06570982441908;
+const float un_sid = 1.00273790935;          // Rapporto tra giorno solare medio e giorno siderale all'equinozio d'inverno
+const float Cost_G = 6.697374558;
+
+const float lc = 0.0497958000000001;
+const float nc = -0.0159140999999998;
+
+const float JD2000 = 2451545.0;
+const float giorno_siderale = 23.9344699;        // Lunghezza del giorno siderale (23:56:04.9)
+  double GST, LST, utc;                 // Tempo siderale di Greenwich e locale
+  int dh, dm, ds;                       // Espressione del tempo locale siderale ((HH:MM:SS)
+
 
 
 typedef struct times {
@@ -165,6 +189,10 @@ void setup() {
   init_TFT();                   // Abilita lo schermo
   init_RTC();                   // Abilita l'orologio in tempo reale
   init_GPS();                   // Abilita il GPS
+  init_MPL3115A2();             // Inizializzazione  Barometro/Altimetro MPL3115A2
+
+  init_TSL2561();
+  
   MENU_BUTTON();                // Crea i bottoni
   Musichina ();                 // Suono iniziale
 

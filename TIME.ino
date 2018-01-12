@@ -6,17 +6,41 @@ String ReadTimeDate(byte flag) {
 
   switch (flag) {
     case 0: //   DATA
+    /*
       sprintf(ccc, "%02d/%02d/%04d", dy, mo, yr);
       return (ccc);
+      */
+      value = "DATA: ";
+      if (dy < 10) value += "0";
+      value  += dy; value +="/";
+      if (mo < 10) value += "0";
+      value  += mo; value +="/";
+      value  += yr;
+      return (value);
       break;
     case 1:  // ORA LOCALE
-
-      sprintf(ccc, "LMT:%02d:%02d:%02d", hr, mn, se );
-      return (ccc);
+      //sprintf(ccc, "LMT:%02d:%02d:%02d", hr, mn, se );
+      //return (ccc);
+      value = "";
+      if (hr < 10) value += "0";
+      value  += hr; value +=":";
+      if (mn < 10) value += "0";
+      value  += mn; value +=":";
+      if (se < 10) value += "0";
+      value  += se;
+      return (value);
       break;
     case 2: //  ORA UTC
-      sprintf(ccc, "UTC:%02d:%02d:%02d", (int)(now.hour()), (int)(now.minute()), (int)(now.second()) );
-      return (ccc);
+      //sprintf(ccc, "UTC:%02d:%02d:%02d", (int)(now.hour()), (int)(now.minute()), (int)(now.second()) );
+      //return (ccc);
+      value = "";
+      if (now.hour() < 10) value += "0";
+      value  += now.hour(); value +=":";
+      if (now.minute() < 10) value += "0";
+      value  += now.minute(); value +=":";
+      if (now.second() < 10) value += "0";
+      value  += now.second();
+      return (value);
       break;
     case 3:  // JULIAN DAY
 
@@ -67,26 +91,13 @@ void LMT() {
 String OraSiderale() {     // Basato su algoritmo di "The United States Naval Observatory (USNO)"
   // http://aa.usno.navy.mil/faq/docs/GAST.php
   //
-  // sidereal calculation constants
-const float dc = 0.06570982441908;
-const float un_sid = 1.00273790935;          // Rapporto tra giorno solare medio e giorno siderale all'equinozio d'inverno
-const float Cost_G = 6.697374558;
-
-const float lc = 0.0497958000000001;
-const float nc = -0.0159140999999998;
-
-const float JD2000 = 2451545.0;
-const float giorno_siderale = 23.9344699;        // Lunghezza del giorno siderale (23:56:04.9)
-  double GST, LST, utc;                 // Tempo siderale di Greenwich e locale
-  int dh, dm, ds;                       // Espressione del tempo locale siderale ((HH:MM:SS)
-
 
 
   DateTime now = RTC.now();                          // current time
 
 
   GST = Cost_G + (dc * (((now.unixtime()) / 86400L) + .5 )) + (un_sid * 24 * UTC() ); // Tempo siderale di Greenwich in formato decimale
-  LST = GST + 24.0 + (float)(11.39 / 360 * giorno_siderale); // Tempo siderale locale stabilito dal GPS in formato decimale
+  LST = GST + 24.0 + (float)(LONGITUDE.dec / 360 * giorno_siderale); // Tempo siderale locale stabilito dal GPS in formato decimale
   while (LST >= 24.0 ) {
     LST -= 24.0;  // accordo le 24 ore
   }
@@ -96,8 +107,16 @@ const float giorno_siderale = 23.9344699;        // Lunghezza del giorno sideral
   dh = int( LST );                                           // ORA LST
   dm = int( (LST - (float)dh) * 60.0 );                      // MINUTI LST
   ds = int( (LST - (float)dh - (float)dm / 60.0) * 3600.0 ); // SECONDI LST
-  sprintf(ccc, "LST:%02d:%02d:%02d", dh, dm, ds);
-  return (ccc);
+  //sprintf(ccc, "LST:%02d:%02d:%02d", dh, dm, ds);
+ // return (ccc);
+ value = "";
+      if (dh < 10) value += "0";
+      value  += dh; value +=":";
+      if (dm < 10) value += "0";
+      value  += dm; value +=":";
+      if (ds < 10) value += "0";
+      value  += ds;
+      return (value);
 }
 
 int GiorniAnno(int y, int m, int d) {

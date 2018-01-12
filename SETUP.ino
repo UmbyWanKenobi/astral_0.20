@@ -21,22 +21,28 @@ void init_RTC() {
 void init_GPS() {
 
   gps_port.begin(9600); // Velocità della porta per il NEO-6M
+  gps_port.println( F("$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28") ); // RMC & GGA only
+  gps_port.println( F("$PMTK220,500*2B") ); // 5Hz update rate
+  gps_port.println( F("$PMTK300,10000,0,0,0,0*2C") ); // Position fix update rate commands. Once every 10 seconds, 100 millihertz.
+  gps_port.println( F("$PMTK313,1*2E") );
+ // gps_port.println( F("$PMTK301,2*2E") );
+
+
 
   //setup satellites signal
   pinMode( LED_GPS0, OUTPUT );  // In attesa del fix dai satelliti
   pinMode( LED_GPS1, OUTPUT );  // Sistema aggangiato
   uint16_t lastToggle = millis();
-  digitalWrite( LED_GPS0, LOW );
-  digitalWrite( LED_GPS1, LOW );
-#ifdef DEBUG                                      // Per Uso  
-  spln( F("In attesa del GPS ...") ); //   di DEBUG
-#endif
+  cbi (PORTC, PIN6); cbi (PORTA, PINA1);
 
-  while (gps.available( gps_port )) {
+  spln( F("In attesa del GPS ...") ); //   di DEBUG
+
+
+  while (!gps.available( gps_port )) {
     fix = gps.read();  // a new fix structure has been parsed
     if ((uint16_t) millis() - lastToggle > 500) {
       lastToggle += 500;
-      digitalWrite( LED_GPS0, !digitalRead(LED_GPS0) );
+      tbi (PORTA, PINA1);
     }
   }
 
@@ -49,8 +55,7 @@ void init_GPS() {
     RTC.adjust(DateTime(fix.dateTime.year, fix.dateTime.month, fix.dateTime.date,
                         fix.dateTime.hours, fix.dateTime.minutes, fix.dateTime.seconds));
   }
-  digitalWrite(LED_GPS0 , LOW);
-  digitalWrite(LED_GPS1 , HIGH); // Then there are satellites, the LED switch ON
+  sbi (PORTC, PIN6); cbi (PORTA, PINA1);// Then there are satellites, the LED switch ON
 
 }
 
@@ -123,11 +128,40 @@ void MOTORE () {
 
 
   MOTOR_ENGAGE;
-<<<<<<< HEAD
-  SPIN_ANTICLOCK;
-
-=======
   SPIN_CLOCK;
-  
->>>>>>> 6e3e3eb437bad2f01834970fe1b974bb84d2d12e
+
 }
+
+void init_MPL3115A2 () {
+  MPL.begin();
+
+  MPL.setModeAltimeter(); // Measure quota above sea level in meters
+  MPL.setModeBarometer(); // Measure pressione in Pascals from 20 to 110 kPa
+  MPL.setOversampleRate(5); // Set Oversample to the recommended 128
+  MPL.enableEventFlags(); // Enable all three pressione and temp event flags
+}
+ void init_TSL2561 () {
+  
+  Serial.println("Light Sensor Test"); Serial.println("");
+  
+  /* Initialise the sensor */
+  //use tsl.begin() to default to Wire, 
+  //tsl.begin(&Wire2) directs api to use Wire2, etc.
+  if(!tsl.begin())
+  {
+    /* There was a problem detecting the TSL2561 ... check your connections */
+    Serial.print("Ooops, no TSL2561 detected ... Check your wiring or I2C ADDR!");
+
+  }
+  
+  /* Display some basic information on this sensor */
+  displaySensorDetails();
+  
+  /* Setup the sensor gain and integration time */
+  configureSensor();
+  
+  /* We're ready to go! */
+  Serial.println("");
+
+ }
+

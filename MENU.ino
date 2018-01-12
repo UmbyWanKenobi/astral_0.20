@@ -1,5 +1,5 @@
 
-void MENU_BUTTON() {                      // I pulsanti del menù principale
+void MENU_BUTTON() {                      // I pulsanti del menÃ¹ principale
   for (uint8_t row = 0; row < 2; row++) {
     for (uint8_t col = 0; col < 2; col++) {
       MENU[col + row * 2].initButton(&tft, MENU_X + col * (MENU_W + MENU_SPACING_X),
@@ -50,7 +50,7 @@ void ESC () {                                   // Routine pulsante di uscita2
 
 }
 
-void ASTRO_MENU() {         // Routine menù principale
+void ASTRO_MENU() {         // Routine menÃ¹ principale
   Init_Splash_Draw ();      // la banda in cima
   tft.setFont(&FreeSansBold12pt7b);
   for (uint8_t row = 0; row < 2; row++) {
@@ -73,6 +73,7 @@ void ASTRO_MENU() {         // Routine menù principale
             Init_Splash_Draw ();
             tft.setFont(&FreeSans12pt7b);
             MENU[5].drawButton();
+             mask();
             while (ESCAPE != true) {
               Data_Ora();
 
@@ -80,8 +81,10 @@ void ASTRO_MENU() {         // Routine menù principale
             ESCAPE = false;
             break;
           case 1:
-            //      while (ESCAPE != true) {
-            // calibrazione();
+                 while (ESCAPE != true) {
+           TSL();
+             }
+            ESCAPE = false;
             break;
           case 2:
             //       while (ESCAPE != true) {
@@ -98,3 +101,4 @@ void ASTRO_MENU() {         // Routine menù principale
     }
   }
 }
+
