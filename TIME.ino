@@ -19,7 +19,7 @@ String ReadTimeDate(byte flag) {
       return (value);
       break;
     case 1:  // ORA LOCALE
-      //sprintf(ccc, "LMT:%02d:%02d:%02d", hr, mn, se );
+      //sprintf(ccc, "%02d:%02d:%02d", hr, mn, se );
       //return (ccc);
       value = "";
       if (hr < 10) value += "0";
@@ -31,7 +31,7 @@ String ReadTimeDate(byte flag) {
       return (value);
       break;
     case 2: //  ORA UTC
-      //sprintf(ccc, "UTC:%02d:%02d:%02d", (int)(now.hour()), (int)(now.minute()), (int)(now.second()) );
+      //sprintf(ccc, "%02d:%02d:%02d", (int)(now.hour()), (int)(now.minute()), (int)(now.second()) );
       //return (ccc);
       value = "";
       if (now.hour() < 10) value += "0";
