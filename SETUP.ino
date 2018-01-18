@@ -9,7 +9,7 @@ void init_TFT() {
 }
 
 void init_RTC() {
-  SPI.begin();
+  Wire.begin();
   RTC.begin();
   RTC.enableOscillator(true, true, 3);
   if ( ! RTC.isrunning()) {
@@ -25,7 +25,7 @@ void init_GPS() {
   gps_port.println( F("$PMTK220,500*2B") ); // 5Hz update rate
   gps_port.println( F("$PMTK300,10000,0,0,0,0*2C") ); // Position fix update rate commands. Once every 10 seconds, 100 millihertz.
   gps_port.println( F("$PMTK313,1*2E") );
- // gps_port.println( F("$PMTK301,2*2E") );
+  // gps_port.println( F("$PMTK301,2*2E") );
 
 
 
@@ -49,16 +49,22 @@ void init_GPS() {
 
 
   DateTime now = RTC.now();
-  if (fix.dateTime.seconds !=  now.second()  && fix.valid.time)
-  {
-    spln ("Sincing RTC");
-    RTC.adjust(DateTime(fix.dateTime.year, fix.dateTime.month, fix.dateTime.date,
-                        fix.dateTime.hours, fix.dateTime.minutes, fix.dateTime.seconds));
-  }
-  sbi (PORTC, PIN6); cbi (PORTA, PINA1);// Then there are satellites, the LED switch ON
+  spln ("In attesa di una lettura valida di tempo ...");
+  do {
+ 
+    
+    if (fix.valid.time)
 
+    {
+      spln ("Sincronizzo RTC");
+      RTC.adjust(DateTime(fix.dateTime.year, fix.dateTime.month, fix.dateTime.date,
+                          fix.dateTime.hours, fix.dateTime.minutes, fix.dateTime.seconds));
+    }
+    sbi (PORTC, PIN6); cbi (PORTA, PINA1);// Then there are satellites, the LED switch ON
+
+  } while (fix.valid.time);
+  spln ("Finito.");
 }
-
 void Init_Splash_Draw () {
   String str;
   uint16_t pixel;
@@ -140,28 +146,28 @@ void init_MPL3115A2 () {
   MPL.setOversampleRate(5); // Set Oversample to the recommended 128
   MPL.enableEventFlags(); // Enable all three pressione and temp event flags
 }
- void init_TSL2561 () {
-  
+void init_TSL2561 () {
+
   Serial.println("Light Sensor Test"); Serial.println("");
-  
+
   /* Initialise the sensor */
-  //use tsl.begin() to default to Wire, 
+  //use tsl.begin() to default to Wire,
   //tsl.begin(&Wire2) directs api to use Wire2, etc.
-  if(!tsl.begin())
+  if (!tsl.begin())
   {
     /* There was a problem detecting the TSL2561 ... check your connections */
     Serial.print("Ooops, no TSL2561 detected ... Check your wiring or I2C ADDR!");
 
   }
-  
+
   /* Display some basic information on this sensor */
   displaySensorDetails();
-  
+
   /* Setup the sensor gain and integration time */
   configureSensor();
-  
+
   /* We're ready to go! */
   Serial.println("");
 
- }
+}
 

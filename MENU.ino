@@ -34,7 +34,7 @@ void touch  (int i) {                           // Routine touchscreen
   // Controlla che qualche pulsante sia stato premuto
   if ((MENU[i].contains(p.x, p.y)) && p.x > 10) {
     MENU[i].press(true);                        // Se un pulsante viene premuto
-    tone(BUZZER_PIN, NOTE_E4, 50);              // Suona una nota
+   // tone(BUZZER_PIN, NOTE_E4, 50);              // Suona una nota
     MENU[i].drawButton(true);                   // Inverte il suo colore
   } else {
     MENU[i].press(false);                       // Altrimenti non fa niente

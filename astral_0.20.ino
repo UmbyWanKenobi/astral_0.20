@@ -51,7 +51,7 @@ NMEAGPS gps;
 gps_fix fix;
 
 MCUFRIEND_kbv tft;
-RTC_DS3234 RTC(53);
+RTC_DS3231 RTC;
 MPL3115A2 MPL;
 
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
@@ -79,8 +79,8 @@ Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 1234
 #define SPIN_CLOCK         cbi (PORTL, PINL3);   // PORTL &= ~(1<<3); //   PIN digitale 46
 #define SPIN_ANTICLOCK     sbi (PORTL, PINL3);   // PORTL |=  (1<<3); //   Se alto gira in senso antiorario
 #define MOTOR_TOGGLE       tbi (PORTL, PINL5);   // PINL  |= 1<<5;    //   scambia lo stato del motore (PIN digitale 44)
-#define  LEDMOTOR_TOGGLE   tbi (PORTA, PINA3);   // PINA  |= 1<<3;    //   scambia lo stato del LED    (PIN digitale 25)
-
+#define LEDMOTOR_TOGGLE    tbi (PORTA, PINA3);   // PINA  |= 1<<3;    //   scambia lo stato del LED    (PIN digitale 25)
+#define BATTERY A9
 
 #define YP A2  // PIN analogico del touch
 #define XM A3  // PIN analogico del touch
@@ -194,7 +194,7 @@ void setup() {
   init_TSL2561();
   
   MENU_BUTTON();                // Crea i bottoni
-  Musichina ();                 // Suono iniziale
+ // Musichina ();                 // Suono iniziale
 
 }
 

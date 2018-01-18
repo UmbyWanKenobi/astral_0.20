@@ -8,7 +8,7 @@ void Data_Ora () {
   }
 }
 void PRINT_INFO() {
-timer=millis();
+//timer=millis();
   byte flag;      // Flag del dato richiesto: 0 per la data, 1 per UTC, 2 per l'ora locale,
   // 3 per JDN, 4 per l'ora siderale locale
  
@@ -60,8 +60,10 @@ timer=millis();
   
   tft.setCursor(210, 210);
   tft.print(MPL.readAltitude() / 131.23);
- 
- spln (millis()-timer);
+  int BatteryS = analogRead(BATTERY);
+ float Volt = BatteryS * (4.64 / 1023.0) * 2;
+ spln (Volt);
+ //spln (millis()-timer);
 }
 
 
@@ -129,17 +131,23 @@ void plot() {
     cbi (PORTA, PINA1);        // Spengi il LED di attesa
 sbi (PORTC, PIN6);      // Accendi il LED se ci sono satelliti aggangiati
 
-    /*
+/*     
       if (fix.valid.time ) {
-
+DateTime now = RTC.now();
+  spln ("Sincing RTC");
+     RTC.adjust(DateTime(fix.dateTime.year, fix.dateTime.month, fix.dateTime.date,
+                        fix.dateTime.hours, fix.dateTime.minutes, fix.dateTime.seconds));
+   
       TIME.hour = fix.dateTime.hours;
       TIME.minute = fix.dateTime.minutes;
       TIME.second = fix.dateTime.seconds;
       TIME.date = fix.dateTime.date;
       TIME.month = fix.dateTime.month;
       TIME.year = fix.dateTime.year;
+      
       }
     */
+  
     LATITUDE.dec = fix.latitude();
     LATITUDE.DD = (int)LATITUDE.dec;
     LATITUDE.mantissa = LATITUDE.dec - LATITUDE.DD ;
